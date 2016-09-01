@@ -1,27 +1,36 @@
 package libs
 
 import (
-	telegramApi "gopkg.in/telegram-bot-api.v4"
 	"log"
 	"net/url"
+	"os"
+
+	telegramApi "gopkg.in/telegram-bot-api.v4"
 )
 
-// SetupBot telegram
-func SetupBot(token string, appURL string) {
-	log.Printf("Setting up telegram bot using token: %s", token)
-	bot, error := telegramApi.NewBotAPI(token)
-	if error != nil {
-		log.Panic(error)
-	}
+var bot *telegramApi.BotAPI
 
+func init() {
+	telegramToken := os.Getenv("TELEGRAM_TOKEN")
+	log.Printf("Setting telegram bot using token: %s", telegramToken)
+
+	var err error
+	bot, err = telegramApi.NewBotAPI(telegramToken)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+// SetupBot telegram
+func SetupBot(appURL string) {
 	log.Printf("Detected bot account: %s", bot.Self.UserName)
 
-	webhookURL, error := url.Parse(appURL + "/telegramHandler")
-	if error != nil {
-		log.Panic(error)
+	webhookURL, err := url.Parse(appURL + "/telegramHandler")
+	if err != nil {
+		log.Panic(err)
 	}
 
-	log.Println("Setting up webhook url...")
+	log.Printf("Setting telegram webhook url to: %s", appURL)
 	bot.SetWebhook(telegramApi.WebhookConfig{URL: webhookURL})
 	log.Println("Done!")
 }
