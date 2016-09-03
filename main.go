@@ -11,7 +11,6 @@ import (
 	"github.com/asasmoyo/cs6401/lib/telegram"
 )
 
-// AppURL value
 var appURL = os.Getenv("APP_URL")
 var telegramToken = os.Getenv("TELEGRAM_TOKEN")
 var port = os.Getenv("PORT")
@@ -24,6 +23,7 @@ func init() {
 		log.Panic("Cannot read TELEGRAM_TOKEN from env vars!")
 	}
 	if port == "" {
+		log.Println("No PORT env var detected, bind app on port 8080")
 		port = "8080"
 	}
 }
