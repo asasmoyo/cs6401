@@ -63,14 +63,13 @@ func handleUpdate(update *telegramApi.Update) string {
 			if state.NextState == nil {
 				response += " You are now at final state."
 			} else {
-				state = state.NextState
-				response += " You should go to state "
+				response += " Steps:"
 				for state != nil {
-					response += "#" + strconv.Itoa(state.No)
+					response += state.GetNextMove()
 					if state.NextState != nil {
-						response += ", then "
+						response += ", then"
 					} else {
-						response += " (Final)."
+						response += "stop."
 					}
 
 					state = state.NextState
