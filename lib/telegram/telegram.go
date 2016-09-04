@@ -35,5 +35,6 @@ func NewBot(telegramToken, appURL string) Bot {
 // SendMessage send message
 func (bot Bot) SendMessage(chatID int64, textMessage string) {
 	chatMessage := telegramApi.NewMessage(chatID, textMessage)
+	chatMessage.ParseMode = "html"
 	bot.instance.Send(chatMessage)
 }

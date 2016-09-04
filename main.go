@@ -3,11 +3,13 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/kataras/iris"
 	telegramApi "gopkg.in/telegram-bot-api.v4"
 
+	"github.com/asasmoyo/cs6401/lib/task1"
 	"github.com/asasmoyo/cs6401/lib/telegram"
 )
 
@@ -50,21 +52,41 @@ func handleUpdate(update *telegramApi.Update) string {
 
 	if strings.HasPrefix(textMessage, "/task1") {
 		parts := strings.Split(textMessage, " ")
-		if len(parts) != 3 || !(checkCleanOption(parts[1]) && checkPositionOption(parts[2])) {
+		if len(parts) != 4 || !(checkPositionOption(parts[1]) && checkCleanOption(parts[2]) && checkCleanOption(parts[3])) {
 			response = "Invalid parameters"
 		} else {
-			response = "Working on it"
+			position := strings.ToLower(parts[1])
+			isLeftClean, _ := strconv.ParseBool(strings.ToLower(parts[2]))
+			isRightClean, _ := strconv.ParseBool(strings.ToLower(parts[3]))
+			state := task1.GetStep(position, isLeftClean, isRightClean)
+			response = "You are now at state #" + strconv.Itoa(state.No) + "."
+			if state.NextState == nil {
+				response += " You are now at final state."
+			} else {
+				state = state.NextState
+				response += " You should go to state "
+				for state != nil {
+					response += "#" + strconv.Itoa(state.No)
+					if state.NextState != nil {
+						response += ", then "
+					} else {
+						response += " (Final)."
+					}
+
+					state = state.NextState
+				}
+			}
 		}
 	} else {
 		response = `Hi there! This is ArbaCS6401Bot. You can ask for tasks specified bellow:
-      - /task1 [is clean: YES/NO] [position: LEFT/RIGHT]`
+      - /task1 [position: LEFT/RIGHT] [is left clean: TRUE/FALSE] [is right clean: TRUE/FALSE]`
 	}
 
 	return response
 }
 
 func checkCleanOption(value string) bool {
-	if value == "yes" || value == "no" {
+	if value == "true" || value == "false" {
 		return true
 	}
 	return false
